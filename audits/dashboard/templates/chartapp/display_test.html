@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Application Level Info</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <form method="GET" action="{% url 'display_test' %}">
+    <label for="">Custom Date</label><br>
+
+    <label for="start_date">Start Date:</label>
+    <input type="date" id="start_date" name="start_date" value="{{ start_d }}">
+
+    <label for="end_date">End Date:</label>
+    <input type="date" id="end_date" name="end_date", value="{{ end_d }}">
+
+    <button type="submit">Apply Filter</button>
+
+    
+    {% csrf_token %}
+    <h1>Select Application:</h1>
+    {% comment %} <form method="GET"> {% endcomment %}
+        {% comment %} <select name="selected_application" onchange="this.form.submit()"> #onchange="document.getElementById('filterForm').submit()" {% endcomment %}
+          <select name="selected_application" onchange="document.getElementById('filterForm').submit()">
+          <option value="">Select an Application</option>
+            {% for app_name in application_names %}
+                <option value="{{ app_name.appd_application_name }}" {% if app_name.appd_application_name == selected_application %}selected{% endif %}>{{ app_name.appd_application_name }}</option>
+            {% endfor %}
+        </select>
+
+    <button type="submit">Apply Filter</button>
+    
+
+
+</form>
+
+
+
+    
+    <div style="width: 80%; margin: 0 auto;">
+      <h2> Type Data </h2>
+      <canvas id="barChart"></canvas>
+    <script>
+        // Get the data from the context
+        {% comment %} var labels = {% for item in grouped_data %} {{ item.type }} {% if not forloop.last %}, {% endif %}{% endfor %};
+        var data = {% for item in grouped_data %} {{ item.group_count }} {% if not forloop.last %}, {% endif %}{% endfor %}; {% endcomment %}
+
+        // Create a bar chart
+        var ctx = document.getElementById('barChart').getContext('2d');
+        var myBarChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels:  [{% for product in type_data %} '{{ product.type }}', {% endfor %}],
+                datasets: [{
+                    label: 'Count',
+                    data: [{% for product in type_data %} '{{ product.type_count }}', {% endfor %}],
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)', // Adjust the bar color as needed
+                    borderColor: 'rgba(75, 192, 192, 1)', // Adjust the border color as needed
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+
+    </div>
+
+
+  <div style="width: 80%; margin: 0 auto;">
+    <h2> Severity Data </h2>
+    <canvas id="barChart_severity"></canvas>
+    <script>
+      // Get the data from the context
+      {% comment %} var labels = {% for item in grouped_data %} {{ item.type }} {% if not forloop.last %}, {% endif %}{% endfor %};
+      var data = {% for item in grouped_data %} {{ item.group_count }} {% if not forloop.last %}, {% endif %}{% endfor %}; {% endcomment %}
+
+      // Create a bar chart
+      var ctx = document.getElementById('barChart_severity').getContext('2d');
+      var myBarChart = new Chart(ctx, {
+          type: 'bar',
+          data: {
+              labels:  [{% for product in severity_data %} '{{ product.severity }}', {% endfor %}],
+              datasets: [{
+                  label: 'Count',
+                  data: [{% for product in severity_data %} '{{ product.severity_count }}', {% endfor %}],
+                  backgroundColor: 'rgba(75, 192, 192, 0.2)', // Adjust the bar color as needed
+                  borderColor: 'rgba(75, 192, 192, 1)', // Adjust the border color as needed
+                  borderWidth: 1
+              }]
+          },
+          options: {
+              scales: {
+                  y: {
+                      beginAtZero: true
+                  }
+              }
+          }
+      });
+  </script>
+</div>
+
+</body>
+</html>

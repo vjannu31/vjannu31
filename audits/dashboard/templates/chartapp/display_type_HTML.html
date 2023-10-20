@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Type Data Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Type Data Dashboard</h1>
+    </header>
+    <section class="filters">
+        <form method="GET" action="{% url 'display_typedata' %}">
+            <label for="start_date">Start Date:</label>
+            <input type="date" id="start_date" name="start_date" value="{{ start_d }}">
+            
+            <label for="end_date">End Date:</label>
+            <input type="date" id="end_date" name="end_date" value="{{ end_d }}">
+            
+            {% csrf_token %}
+            
+            <h2>Type module:</h2>
+            
+            <select name="selected_type" onchange="document.getElementById('filterForm').submit()">
+                <option value="">Select a type</option>
+                {% for type_N in type_names %}
+                    <option value="{{ type_N.type }}" {% if type_N.type == selected_type %}selected{% endif %}>{{ type_N.type }}</option>
+                {% endfor %}
+            </select>
+            
+            <button type="submit">Apply Filter</button>
+        </form>
+    </section>
+    
+    <section class="charts">
+        <div class="chart-container">
+            <h2>Application Data</h2>
+            <canvas id="barChart"></canvas>
+        </div>
+        
+        <div class="chart-container">
+            <h2>Top 10 Type Data</h2>
+            <canvas id="barChart_topten"></canvas>
+        </div>
+        
+        <div class="chart-container">
+            <h2>Bottom 10 Type Data</h2>
+            <canvas id="barChart_bottemten"></canvas>
+        </div>
+    </section>
+    
+    <script src="script.js"></script>
+</body>
+</html>

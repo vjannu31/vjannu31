@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Select Application</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Select Application</h1>
+    <ul>
+        {% for choice in application_choices %}
+            <li><a href="{% url 'display_severitydata' %}?application={{ choice }}&start_date={{ start_d }}&end_date={{ end_d }}">{{ choice }}</a></li>
+        {% endfor %}
+    </ul>
+
+    <form>
+        <label for="application">Application:</label>
+        <select name="application" id="application">
+            {% for choice in application_choices %}
+                <option value="{{ choice }}" {% if choice == default_application %}selected{% endif %}>
+                    {{ choice }}
+                </option>
+            {% endfor %}
+        </select>
+        <br>
+
+        <label for="start_date">Start Date:</label>
+        <input type="date" name="start_date" value="{{ start_d }}">
+        <br>
+        <label for="end_date">End Date:</label>
+        <input type="date" name="end_date" value="{{ end_d}}">
+    </form>
+
+    <div id="data-container">
+        <!-- Data will be displayed here -->
+        {% if data %}
+            <h2>Data for {{ default_application }} ({{ start_d }} - {{ end_d }})</h2>
+            <table>
+                <!-- Display your data here -->
+            </table>
+        {% endif %}
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            // Function to fetch and display data
+            function displayData(application, start_date, end_date) {
+                $.ajax({
+                    url: "{% url 'display_severitydata' %}",
+                    data: { 'application': application, 'start_date': start_date, 'end_date': end_date },
+                    method: 'GET',
+                    success: function(data) {
+                        // Display the data in the 'data-container' div
+                        $('#data-container').html(data);
+                    }
+                });
+            }
+
+            // Initial data display when the page loads
+            displayData('{{ default_application }}', '{{ start_date }}', '{{ end_date }}');
+
+            // Handle the 'change' event of the dropdown to update data
+            $('#application').on('change', function() {
+                var selectedApplication = $(this).val();
+                var selectedStartDate = $('input[name="start_date"]').val();
+                var selectedEndDate = $('input[name="end_date"]').val();
+                displayData(selectedApplication, selectedStartDate, selectedEndDate);
+            });
+
+            // Handle the 'change' event of the date inputs to update data
+            $('input[name="start_date"], input[name="end_date"]').on('change', function() {
+                var selectedApplication = $('#application').val();
+                var selectedStartDate = $('input[name="start_date"]').val();
+                var selectedEndDate = $('input[name="end_date"]').val();
+                displayData(selectedApplication, selectedStartDate, selectedEndDate);
+            });
+        });
+    </script>
+</body>
+</html>

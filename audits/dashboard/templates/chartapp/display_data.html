@@ -1,0 +1,67 @@
+<!-- display_data.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Select an Application</title>
+</head>
+<body>
+    <h1>Select an Application:</h1>
+    <select id="applicationDropdown">
+        <option value="">-- Select an Application --</option>
+        {% for application in applications %}
+            <option value="{{ application.appd_application_name }}">{{ application.appd_application_name }}</option>
+        {% endfor %}
+    </select>
+    <div id="barChartContainer">
+        <canvas id="barChart"></canvas>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        var ctx = document.getElementById('barChart').getContext('2d');
+        var chart;
+
+        function updateChart(type_names, type_counts) {
+            if (chart) {
+                chart.destroy();
+            }
+
+            chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: type_names,
+                    datasets: [{
+                        label: 'Type Count',
+                        data: type_counts,
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        document.getElementById('applicationDropdown').addEventListener('change', function() {
+            var selectedValue = this.value;
+            if (selectedValue) {
+                fetch('/dashboard/get-type-data/?application=${selectedValue}')
+                    .then(response => response.json())
+                    .then(data => {
+                        updateChart(data.type_names, data.type_counts);
+                    });
+            }
+        });
+    </script>
+
+
+    
+
+</body>
+</html>

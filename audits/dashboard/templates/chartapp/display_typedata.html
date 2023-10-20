@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Type Data</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <form method="GET" action="{% url 'display_typedata' %}">
+    <label for="">Custom Date</label><br>
+
+    <label for="start_date">Start Date:</label>
+    <input type="date" id="start_date" name="start_date" value="{{ start_d }}">
+
+    <label for="end_date">End Date:</label>
+    <input type="date" id="end_date" name="end_date", value="{{ end_d }}">
+
+    
+    {% csrf_token %}
+    <h1>Type module:</h1>
+    {% comment %} <form method="GET"> {% endcomment %}
+        {% comment %} <select name="selected_application" onchange="this.form.submit()"> #onchange="document.getElementById('filterForm').submit()" {% endcomment %}
+          <select name="selected_type" onchange="document.getElementById('filterForm').submit()">
+          <option value="">Select an type</option>
+            {% for type_N in type_names %}
+                <option value="{{ type_N.type }}" {% if type_N.type == selected_type %}selected{% endif %}>{{ type_N.type }}</option>
+            {% endfor %}
+        </select>
+
+    <button type="submit">Apply Filter</button>
+
+
+</form>
+
+
+
+  </form>
+
+    
+    <div style="width: 90%; margin: 0 auto;">
+      <h2> Application Data </h2>
+      <canvas id="barChart"></canvas>
+    <script>
+        // Get the data from the context
+        {% comment %} var labels = {% for item in grouped_data %} {{ item.type }} {% if not forloop.last %}, {% endif %}{% endfor %};
+        var data = {% for item in grouped_data %} {{ item.group_count }} {% if not forloop.last %}, {% endif %}{% endfor %}; {% endcomment %}
+
+        // Create a bar chart
+        var ctx = document.getElementById('barChart').getContext('2d');
+        var myBarChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels:  [{% for product in app_data %} '{{ product.appd_application_name }}', {% endfor %}],
+                datasets: [{
+                    label: 'Count',
+                    data: [{% for product in app_data %} '{{ product.apps_count }}', {% endfor %}],
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)', // Adjust the bar color as needed
+                    borderColor: 'rgba(75, 192, 192, 1)', // Adjust the border color as needed
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+
+    </div>
+
+
+    <div style="width: 80%; margin: 0 auto;">
+        <h2> Top 10 Type Data </h2>
+        <canvas id="barChart_topten"></canvas>
+      <script>
+          // Get the data from the context
+          {% comment %} var labels = {% for item in grouped_data %} {{ item.type }} {% if not forloop.last %}, {% endif %}{% endfor %};
+          var data = {% for item in grouped_data %} {{ item.group_count }} {% if not forloop.last %}, {% endif %}{% endfor %}; {% endcomment %}
+  
+          // Create a bar chart
+          var ctx = document.getElementById('barChart_topten').getContext('2d');
+          var myBarChart = new Chart(ctx, {
+              type: 'bar',
+              data: {
+                  labels:  [{% for product in app_data_top_10 %} '{{ product.appd_application_name }}', {% endfor %}],
+                  datasets: [{
+                      label: 'Count',
+                      data: [{% for product in app_data_top_10 %} '{{ product.apps_count_topten }}', {% endfor %}],
+                      backgroundColor: 'rgba(75, 192, 192, 0.2)', // Adjust the bar color as needed
+                      borderColor: 'rgba(75, 192, 192, 1)', // Adjust the border color as needed
+                      borderWidth: 1
+                  }]
+              },
+              options: {
+                  scales: {
+                      y: {
+                          beginAtZero: true
+                      }
+                  }
+              }
+          });
+      </script>
+  
+      </div>
+
+      <div style="width: 80%; margin: 0 auto;">
+        <h2> Bottom 10 Type Data </h2>
+        <canvas id="barChart_bottemten"></canvas>
+      <script>
+          // Get the data from the context
+          {% comment %} var labels = {% for item in grouped_data %} {{ item.type }} {% if not forloop.last %}, {% endif %}{% endfor %};
+          var data = {% for item in grouped_data %} {{ item.group_count }} {% if not forloop.last %}, {% endif %}{% endfor %}; {% endcomment %}
+  
+          // Create a bar chart
+          var ctx = document.getElementById('barChart_bottemten').getContext('2d');
+          var myBarChart = new Chart(ctx, {
+              type: 'bar',
+              data: {
+                  labels:  [{% for product in app_data_bottom_10 %} '{{ product.appd_application_name }}', {% endfor %}],
+                  datasets: [{
+                      label: 'Count',
+                      data: [{% for product in app_data_bottom_10 %} '{{ product.apps_count_b10 }}', {% endfor %}],
+                      backgroundColor: 'rgba(75, 192, 192, 0.2)', // Adjust the bar color as needed
+                      borderColor: 'rgba(75, 192, 192, 1)', // Adjust the border color as needed
+                      borderWidth: 1
+                  }]
+              },
+              options: {
+                  scales: {
+                      y: {
+                          beginAtZero: true
+                      }
+                  }
+              }
+          });
+      </script>
+  
+      </div>
+
+</body>
+</html>

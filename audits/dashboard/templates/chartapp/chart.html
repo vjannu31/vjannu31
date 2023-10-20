@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bar Chart</title>
+    <!-- Include the charting library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <form action="{% url 'chart_view' %}" method="get">
+        <label for="interval">Select Time Interval:</label>
+        <select id="interval" name="interval">
+            <option value="1" {% if selected_interval == 1 %}selected{% endif %}>1 Hour</option>
+            <option value="3" {% if selected_interval == 3 %}selected{% endif %}>3 Hours</option>
+            <option value="6" {% if selected_interval == 6 %}selected{% endif %}>6 Hours</option>
+            <option value="12" {% if selected_interval == 12 %}selected{% endif %}>12 Hours</option>
+        </select>
+
+        <button type="submit">Filter</button>
+    </form>
+
+    <div style="width: 800px; height: 400px;">
+        <canvas id="myChart"></canvas>
+    </div>
+
+    <script>
+        // Retrieve the data from the Django context
+        var labels = {{ labels | safe }};
+        var values = {{ values | safe }};
+
+        // Create the chart
+        var ctx = document.getElementById('myChart').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Data',
+                    data: values,
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: false,
+                scales: {
+                    y: {
+                        beginAtZero:
+                    }
+                }
+            }
+        })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% comment %} <!DOCTYPE html>
+<html>
+<head>
+    <title>Bar Chart</title>
+    <!-- Include the charting library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <form action="{% url 'chart_view' %}" method="get">
+        <label for="date">Select Date:</label>
+        <input type="date" id="date" name="date" value="{{ selected_date }}">
+
+        <label for="hour">Select Hour:</label>
+        <input type="number" id="hour" name="hour" min="0" max="23" value="{{ selected_hour }}">
+
+        <button type="submit">Filter</button>
+    </form>
+
+    <div style="width: 800px; height: 400px;">
+        <canvas id="myChart"></canvas>
+    </div>
+
+    <script>
+        // Retrieve the data from the Django context
+        var labels = {{ labels | safe }};
+        var values = {{ values | safe }};
+
+        // Create the chart
+        var ctx = document.getElementById('myChart').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Data',
+                    data: values,
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                ]}
+            }
+        }
+        )
+</body> {% endcomment %}

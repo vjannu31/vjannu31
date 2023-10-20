@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+  <title>AppDynamics</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+        .pie-chart-container {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .bar-chart-container {
+            width: 50%; /* Adjust the width as needed */
+        }
+        <!-- memnu bar center-->
+        .topnav-centered a {
+          position: relative;
+          top: 0;
+          left: 0;
+          transform: none;
+        }
+
+        /* Add CSS styles for the footer */
+        footer {
+            background-color: #333; /* Background color of the footer */
+            color: #fff; /* Text color */
+            padding: 20px; /* Padding for the content within the footer */
+            border-top: 2px solid white; /* White border at the top of the footer */
+          }
+  </style>
+
+</head>
+<header>
+
+</header>
+<body>
+
+<nav class="navbar navbar-inverse">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="{% url 'hourdate' %}">AppDynamics</a>
+    </div>
+    <ul class="nav navbar-nav">
+      <li class="active"><a href="{% url 'hourdate' %}">Home</a></li>
+      <!-- <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">Type <span class="caret"></span></a>
+         <ul class="dropdown-menu">
+          <li><a href="#">Type-1</a></li>
+          <li><a href="#">Type-2</a></li>
+          <li><a href="#">type-3</a></li>
+        </ul> --> 
+      </li>
+      
+      <li><a href="{% url 'display_app' %}">Application</a></li>
+      <li><a href="{% url 'display_typedata' %}">Type </a></li>
+      <li><a href="{% url 'display_severitydata' %}">Severity</a></li>
+    </ul>
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="{% url 'register' %}"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+      <li><a href="{% url 'user_login' %}"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+    </ul>
+  </div>
+</nav>
+
+<nav class="navbar navbar-inverse">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="#"></a>
+    </div>
+
+    
+
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="#" id="refreshButton" onclick="refreshData()" ><span class="glyphicon glyphicon-refresh"></span> Refresh </a></li>
+    </ul>
+    
+  </div>
+</nav>
+  
+<div class="container">
+  {% csrf_token %}
+  <form method="GET" action="{% url 'hourdate' %}">
+    <label for="">Custom Date</label><br>
+
+    <label for="start_date">Start Date:</label>
+    <input type="date" id="start_date" name="start_date" value="{{ start_d }}">
+
+    <label for="end_date">End Date:</label>
+    <input type="date" id="end_date" name="end_date", value="{{ end_d }}">
+
+    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">
+      <i class="fa fa-check"></i>
+    </button>
+    
+  </form>
+  
+  
+      <div class="chart-container-application" style="width: 100%; margin: 0 auto;" > 
+        <h3>Application level Alerts </h3>
+          <canvas id="myChart2" ></canvas>
+      </div>
+
+      <div class="chart-container - top 10 application" style="width: 100%; margin: 0 auto;" > 
+        <h3>Top Application Alerts </h3>
+        <div>
+          <canvas id="myChart_topfive"></canvas>
+      </div>
+
+      <div class="chart-container - bottom 10 application" style="width: 100%; margin: 0 auto;" > 
+        <h3>Base Application Alerts </h3>
+        <div>
+          <canvas id="myChart_bottomfive"></canvas>
+      </div>
+
+      <div class="chart-container - bottom 10 application" style="width: 90%; margin: 0 auto;" > 
+        <h3>Type Level</h3>
+        <div>
+          <canvas id="myChart_type"></canvas>
+        </div>
+      </div>
+
+      <br>
+      <br>
+
+      <div class="pie-chart-container">
+        <h3>Severity Level </h3>
+        <div class="chart">
+            <canvas id="myPieChart"></canvas>
+        </div>
+      <br>
+        
+        <div class="bar-chart-container">
+          <h3>Type Level </h3>
+          <canvas id="myBarChart"></canvas>
+        </div>
+    </div>
+
+
+    
+
+
+    
+
+
+    
+
+      
+        
+
+    
+
+      
+  
+
+</div>
+  
+
+
+
+<!-- Java Scripts  -->
+<script>
+  function refreshData() {
+      // Reload the current page
+      location.reload();
+  }
+  
+  // Refresh the data every 5 minutes (300000 milliseconds)
+  setInterval(refreshData, 300000);
+</script>
+<!-- inbuilt java scripts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- application level java script-->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+          
+<script>
+  const ctx_bar1 = document.getElementById('myChart2');
+
+  new Chart(ctx_bar1, {
+    type: 'bar',
+    data: {
+      labels: [{% for product in data %} '{{ product.appd_application_name }}', {% endfor %}],
+      datasets: [{
+        label: 'Application Alerts',
+        data: [{% for product in data %} '{{ product.count }}', {% endfor %}],
+        backgroundColor: 'rgb(0, 0, 120)', // Bar fill color
+        borderColor: 'rgb(0, 0, 120)', // Border color
+        borderWidth: 1
+      }]
+    },
+    options: {
+      scales: {
+        x: {
+          display: false, // Hide x-axis labels
+        },
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+</script>
+
+<!-- top 10 application-->
+
+        
+<script>
+  const ctx_topfive = document.getElementById('myChart_topfive');
+
+  new Chart(ctx_topfive, {
+    type: 'bar',
+    data: {
+      labels: [{% for product in topfive %} '{{ product.appd_application_name }}', {% endfor %}],
+      datasets: [{
+        label: 'Top Application',
+        data: [{% for product in topfive %} '{{ product.count }}', {% endfor %}],
+        backgroundColor: 'rgb(0, 0, 120)', // Bar fill color
+        borderColor: 'rgb(0, 0, 120)', // Border color
+        borderWidth: 1
+      }]
+    },
+    options: {
+      scales: {
+        x: {
+          display: false, // Hide x-axis labels
+        },
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+</script>
+
+<!-- bottom 10 application java script-->
+<!--
+<script>
+  const ctx_bottomfive = document.getElementById('myChart_bottomfive');
+
+  new Chart(ctx_bottomfive, {
+    type: 'bar',
+    data: {
+      labels: [{% for product in bottomfive %} '{{ product.appd_application_name }}', {% endfor %}],
+      datasets: [{
+        label: 'Base  Application',
+        data: [{% for product in bottomfive %} '{{ product.count }}', {% endfor %}],
+        backgroundColor: 'rgb(0, 0, 110)', // Bar fill color
+        borderColor: 'rgb(0, 0, 110)', // Border color
+        borderWidth: 1
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+</script>
+-->
+<script>
+const ctx_bottomfive = document.getElementById('myChart_bottomfive');
+
+new Chart(ctx_bottomfive, {
+  type: 'bar',
+  data: {
+    labels: [{% for product in bottomfive %} '{{ product.appd_application_name }}', {% endfor %}],
+    datasets: [{
+      label: 'Base  Application',
+      data: [{% for product in bottomfive %} '{{ product.count }}', {% endfor %}],
+      backgroundColor: 'rgb(0, 0, 110)', // Bar fill color
+      borderColor: 'rgb(0, 0, 110)', // Border color
+      borderWidth: 1
+    }]
+  },
+  options: {
+    scales: {
+      x: {
+        display: false, // Hide x-axis labels
+      },
+      y: {
+        beginAtZero: true
+      }
+    }
+  }
+});
+</script>
+
+<!-- Type data JS-->
+
+          <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+          <script>
+            // Data for the bar chart
+            var data = {
+                labels:  [{% for product in selected_hour %} '{{ product.type }}', {% endfor %}],
+                datasets: [{
+                    label: 'Type Level',
+                    data: [{% for product in selected_hour %} '{{ product.count }}', {% endfor %}],
+                    backgroundColor: 'rgb(64, 181, 173)', // Bar fill color
+                    borderColor: 'rgb(64, 181, 173))', // Border color
+                    borderWidth: 2,
+                    fill: true
+                }]
+            };
+    
+            // Configuration options
+            var options = {
+                scales: {
+                    x: {
+                      display: false, // Hide x-axis labels
+                    },
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+                
+            };
+    
+            // Get the canvas element and create the chart
+            var ctx = document.getElementById('myChart_type').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: data,
+                options: options
+            });
+        </script>
+
+<!-- bar chat and pie chart -->
+
+<script>
+  // Data for the pie chart
+  var pieData = {
+      labels: [{% for product in severity_data %} '{{ product.severity }}', {% endfor %}],
+      datasets: [{
+          label: 'Severity',
+          data:  [{% for product in severity_data %} '{{ product.count }}', {% endfor %}],
+          backgroundColor: ['rgba( 255, 195, 0)', 'rgba(0, 158, 96 )', 'rgba( 255, 87, 5)']
+      }]
+  };
+
+  // Data for the bar chart
+  var barData = {
+      labels:  [{% for product in selected_hour %} '{{ product.type }}', {% endfor %}],
+      datasets: [{
+          label: 'Type',
+          data: [{% for product in selected_hour %} '{{ product.count }}', {% endfor %}],
+          backgroundColor: 'rgba(8, 143, 143)', // Bar fill color
+          borderColor: 'rgba(8, 143, 143)', // Border color
+          borderWidth: 1,
+          fill: true
+      }]
+  };
+
+  // Configuration options
+  var options = {
+      scales: {
+        x: {
+          display: false, // Hide x-axis labels
+          },
+          y: {
+              beginAtZero: true
+          }
+      },
+      
+  };
+
+  // Get the canvas elements and create the charts
+  var pieCtx = document.getElementById('myPieChart').getContext('2d');
+  var barCtx = document.getElementById('myBarChart').getContext('2d');
+
+  new Chart(pieCtx, {
+      type: 'pie',
+      data: pieData
+  });
+
+  new Chart(barCtx, {
+      type: 'bar',
+      data: barData,
+      options: options
+  });
+</script>
+
+<br>
+<br>
+
+<!-- footer -->
+<footer>
+  <div class="container">
+      <p>&copy; 2023 Cisco</p>
+      <ul>
+        <li><a href="{% url 'hourdate' %}">Home</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+  </div>
+</footer>
+
+</body>
+</html>
+
+
+
+<!-- 
+
+      <h3> Test Data Points </h3>
+    <div id="chartContainer" style="width: 100%; height: 360px;"></div>
+    <script src="{% static 'canvasjs.min.js' %}"></script>
+    <script>
+    window.onload = function () {
+        var chart = new CanvasJS.Chart("chartContainer", {
+            animationEnabled: true, // change to false
+            title:{
+                text: "Python Column Chart"
+            },
+            data: [{
+                type: "{{ chart_type }}",  // Use the chart type from the context
+                dataPoints: {{ data_points | safe }}
+            }]
+        });
+        chart.render();
+    }
+    </script>
+-->
+
+<!--
+
+        {% comment %} <li> <form action="{% url 'hourdate' %}" method="get">
+      <label for="interval">Select Time Interval:</label>
+      <select id="interval" name="interval">
+      <option value="1" {% if selected_interval == 0.5 %}selected{% endif %}>30 mins</option>
+      <option value="1" {% if selected_interval == 1 %}selected{% endif %}>1 Hour</option>
+      <option value="3" {% if selected_interval == 3 %}selected{% endif %}>3 Hours</option>
+      <option value="6" {% if selected_interval == 6 %}selected{% endif %}>6 Hours</option>
+      <option value="12" {% if selected_interval == 12 %}selected{% endif %}>12 Hours</option>
+      <option value="24" {% if selected_interval == 24 %}selected{% endif %}>1 day</option>
+      <option value="48" {% if selected_interval == 48 %}selected{% endif %}>2 day</option>
+      <option value="72" {% if selected_interval == 72 %}selected{% endif %}>3 day</option>
+      <option value="96" {% if selected_interval == 96 %}selected{% endif %}>5 day</option>
+      <option value="120" {% if selected_interval == 144 %}selected{% endif %}>1 week</option>
+      <option value="1200" {% if selected_interval == 1200 %}selected{% endif %}>10 day</option>
+      </select>
+
+      <button type="submit">Filter</button>
+      </form> </li> {% endcomment %}
+-->

@@ -1,0 +1,109 @@
+from django.shortcuts import render
+from datetime import datetime, timedelta
+from .models import DataPoint
+
+def bar_chart_view(request):
+    start_date = request.GET.get('start_date')  # Assuming the start date is passed as a query parameter like '?start_date=2023-06-15'
+    end_date = request.GET.get('end_date')  # Assuming the end date is passed as a query parameter like '?end_date=2023-06-18'
+    start_hour = request.GET.get('start_hour')  # Assuming the start hour is passed as a query parameter like '?start_hour=8'
+    end_hour = request.GET.get('end_hour')  # Assuming the end hour is passed as a query parameter like '?end_hour=12'
+
+    if start_date:
+        try:
+            start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+        except ValueError:
+            start_date = datetime.now().date()
+    else:
+        start_date = datetime.now().date()
+
+    if end_date:
+        try:
+            end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+        except ValueError:
+            end_date = datetime.now().date()
+
+    if start_hour:
+        try:
+            start_hour = int(start_hour)
+        except ValueError:
+            start_hour = None
+
+    if end_hour:
+        try:
+            end_hour = int(end_hour)
+        except ValueError:
+            end_hour = None
+
+    # Calculate the time range for the selected dates and hours
+    start_time = datetime.combine(start_date, datetime.min.time())
+    end_time = datetime.combine(end_date, datetime.min.time()) + timedelta(days=1)
+
+    if start_hour is not None:
+        start_time += timedelta(hours=start_hour)
+
+    if end_hour is not None:
+        end_time += timedelta(hours=end_hour)
+
+    # Retrieve data for the bar chart
+    data = DataPoint.objects.filter(timestamp__range=(start_time, end_time))
+
+    labels = [str(dp.timestamp) for dp in data]
+    values = [dp.value for dp in data]
+
+    context = {
+        'labels': labels,
+        'values': values,
+        'start_date': start_date.strftime('%Y-%m-%d'),
+        'end_date': end_date.strftime('%Y-%m-%d'),
+        'start_hour': start_hour,
+        'end_hour': end_hour,
+    }
+
+    return render(request, 'bar_chart.html', context)
+
+
+######################################################################
+from django.shortcuts import render
+from datetime import datetime, timedelta
+from .models import DataPoint
+
+def bar_chart_view(request):
+    selected_date = request.GET.get('date')  # Assuming the date is passed as a query parameter like '?date=2023-06-15'
+    selected_hour = request.GET.get('hour')  # Assuming the hour is passed as a query parameter like '?hour=8'
+
+    if selected_date:
+        try:
+            selected_date = datetime.strptime(selected_date, '%Y-%m-%d').date()
+        except ValueError:
+            selected_date = datetime.now().date()
+    else:
+        selected_date = datetime.now().date()
+
+    if selected_hour:
+        try:
+            selected_hour = int(selected_hour)
+        except ValueError:
+            selected_hour = None
+
+    # Calculate the time range for the selected date and hour
+    start_time = datetime.combine(selected_date, datetime.min.time())
+    end_time = start_time + timedelta(days=1)
+
+    if selected_hour is not None:
+        start_time += timedelta(hours=selected_hour)
+        end_time = start_time + timedelta(hours=1)
+
+    # Retrieve data for the bar chart
+    data = DataPoint.objects.filter(timestamp__range=(start_time, end_time))
+
+    labels = [str(dp.timestamp) for dp in data]
+    values = [dp.value for dp in data]
+
+    context = {
+        'labels': labels,
+        'values': values,
+        'selected_date': selected_date.strftime('%Y-%m-%d'),
+        'selected_hour': selected_hour,
+    }
+
+    return render(request, 'bar_chart.html', context)

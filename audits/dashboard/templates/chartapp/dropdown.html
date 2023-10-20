@@ -1,0 +1,224 @@
+{% comment %} <!DOCTYPE html>
+<html>
+<head>
+    <title>Application Dropdown</title>
+</head>
+<body>
+    <h1>Select an Application:</h1>
+    <form method="post">
+        {% csrf_token %}
+        <select name="application">
+            {% for app in applications %}
+                <option value="{{ app }}">{{ app }}</option>
+            {% endfor %}
+        </select>
+        <input type="submit" value="Submit">
+    </form>
+
+
+
+    <div class="row mt-3">
+        <div class="col-md-9">
+            <h3>Alerts App's</h3>
+            <div>
+                <canvas id="myChart1"></canvas>
+            </div>
+              
+              <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+              
+              <script>
+                const ctx_bar = document.getElementById('myChart1').getContext('2d');
+              
+                new Chart(ctx_bar, {
+                  type: 'bar',
+                  data: {
+                    labels: [{% for product in data %} '{{ product.type }}', {% endfor %}],
+                    datasets: [{
+                      label: '# of Apps',
+                      data: [{% for product in data %} '{{ product.count }}', {% endfor %}],
+                      borderWidth: 1
+                    }]
+                  },
+                  options: {
+                    scales: {
+                      y: {
+                        beginAtZero: true
+                      }
+                    }
+                  }
+                });
+              </script>
+      </div>
+    </div>
+
+
+</body>
+</html> {% endcomment %}
+
+
+
+<!-- graph.html -->
+<!-- index.html -->
+
+
+{% comment %} <!DOCTYPE html>
+<html>
+<head>
+    <title>Application Data Visualization</title>
+    <!-- Include Chart.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h1>Application Data Visualization</h1>
+
+    <!-- Dropdown for application selection -->
+    <label for="application">Select an application:</label>
+    <select id="application">
+        {% for app in applications %}
+            <option value="{{ app }}">{{ app }}</option>
+        {% endfor %}
+    </select>
+
+    <!-- Container for the bar graph -->
+    <div>
+        <canvas id="bar-chart"></canvas>
+    </div>
+
+    <script>
+        // JavaScript code for handling the dropdown change event and updating the graph
+        document.addEventListener('DOMContentLoaded', function () {
+            const applicationSelect = document.getElementById('application');
+            const barChart = new Chart(document.getElementById('bar-chart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    // Initial data (empty)
+                    labels: data.labels,
+                    datasets: [{
+                        label: 'Data',
+                        data:  data.values,
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            applicationSelect.addEventListener('change', function () {
+                const selectedApplication = applicationSelect.value;
+
+                // Fetch data for the selected application from the server
+                fetch(`/api/get_data/?application=${selectedApplication}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Update the graph with the new data
+                        barChart.data.labels = data.labels;
+                        barChart.data.datasets[0].data = data.values;
+                        barChart.update();
+                    })
+                    .catch(error => {
+                        console.error('Error fetching data:', error);
+                    });
+            });
+        });
+    </script>
+</body>
+</html> {% endcomment %}
+<!-- dashboard_app/templates/dashboard_app/dashboard.html -->
+
+
+<!-- dashboard_app/templates/dashboard_app/dashboard.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Type Counts Dashboard</title>
+    <!-- Include Chart.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+</head>
+<body>
+    <h1>Type Counts Dashboard</h1>
+    
+    <!-- Dropdown menu for application_name selection -->
+    <label for="appNameSelect">Select an Application Name:</label>
+    <select id="appNameSelect">
+        <option value="">All Application Names</option>
+        {% for app_name in application_names %}
+            <option value="{{ app_name.appd_application_name }}">{{ app_name.appd_application_name }}</option>
+        {% endfor %}
+    </select>
+
+    <!-- Chart container -->
+    <div style="width: 80%; margin: 20px auto;">
+        <canvas id="barChart"></canvas>
+    </div>
+    <h1>test line </h1>
+
+    <script>
+        const ctx = document.getElementById('barChart').getContext('2d');
+        let chart;
+
+        function updateChart(application_name) {
+
+            // Fetch data from the Django view using application_name as a filter
+            let url='/dashboard/get_type_counts/?application_name='+application_name;
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    if (chart) {
+                        chart.destroy();
+                    }
+
+                    chart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: data.labels,
+                            datasets: [{
+                                label: 'Type Counts',
+                                data: data.counts,
+                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                borderColor: 'rgba(75, 192, 192, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    });
+                });
+        }
+
+        // Initial chart with all application names selected
+        updateChart('');
+
+        // Add event listener to update chart when the dropdown value changes
+        const appNameSelect = document.getElementById('appNameSelect');
+        appNameSelect.addEventListener('change', (event) => {
+            updateChart(event.target.value);
+        });
+
+
+    </script>
+</body>
+</html>
+
+
+{% comment %} console.log('Selected Application:', application_name); // Log the selected application_name
+if (!application_name) {
+    // No application selected, clear the chart
+    if (chart) {
+        chart.destroy();
+    }
+    return;
+} {% endcomment %}

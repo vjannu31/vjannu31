@@ -1,0 +1,31 @@
+<!-- bar_graph.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bar Graph</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h1>Select a category:</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Submit</button>
+    </form>
+
+    {% if data %}
+        <h2>Data for selected category:</h2>
+        <ul>
+            {% for item in data %}
+                <li>{{ item.category }} - Value 1: {{ item.value1 }}, Value 2: {{ item.value2 }}</li>
+            {% endfor %}
+        </ul>
+
+        <canvas id="barChart" width="400" height="400"></canvas>
+        <script>
+            // JavaScript code to create the bar graph using Chart.js
+            // ...
+        </script>
+    {% endif %}
+</body>
+</html>

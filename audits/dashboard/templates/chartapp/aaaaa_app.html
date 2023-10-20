@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+  <title>AppDynamics</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+        .pie-chart-container {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .bar-chart-container {
+            width: 50%; /* Adjust the width as needed */
+        }
+
+        <!-- memnu bar center-->
+        .topnav-centered a {
+          position: relative;
+          top: 0;
+          left: 0;
+          transform: none;
+        }
+
+        /* Add CSS styles for the footer */
+        footer {
+            background-color: #333; /* Background color of the footer */
+            color: #fff; /* Text color */
+            padding: 20px; /* Padding for the content within the footer */
+            border-top: 2px solid white; /* White border at the top of the footer */
+        }
+  </style>
+
+</head>
+<header>
+
+</header>
+<body>
+
+<nav class="navbar navbar-inverse">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="{% url 'hourdate' %}">AppDynamics</a>
+    </div>
+    <ul class="nav navbar-nav">
+      <li class=""><a href="{% url 'hourdate' %}" >Home</a></li>
+      <!-- <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">Type <span class="caret"></span></a>
+         <ul class="dropdown-menu">
+          <li><a href="#">Type-1</a></li>
+          <li><a href="#">Type-2</a></li>
+          <li><a href="#">type-3</a></li>
+        </ul> --> 
+      </li>
+      
+      <li class="active" ><a href="{% url 'display_app' %}">Application</a></li>
+      <li><a href="{% url 'display_typedata' %}" >Type </a></li>
+      <li><a href="{% url 'display_severitydata' %}">Severity</a></li>
+    </ul>
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="{% url 'register' %}"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+      <li><a href="{% url 'user_login' %}"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+    </ul>
+  </div>
+</nav>
+
+<nav class="navbar navbar-inverse">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="#"></a>
+    </div>
+
+
+    <ul class="nav navbar-nav navbar-right">
+
+      <li><a href="#" id="refreshButton" onclick="refreshData()" ><span class="glyphicon glyphicon-refresh"></span> Refresh </a></li>
+    </ul>
+    
+  </div>
+</nav>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+{% csrf_token %}
+
+<div class="container">
+
+  <form method="GET" action="{% url 'display_app' %}">
+    <label for="">Custom Date</label><br>
+
+    <label for="start_date">Start Date:</label>
+    <input type="date" id="start_date" name="start_date" value="{{ start_d }}">
+
+    <label for="end_date">End Date:</label>
+    <input type="date" id="end_date" name="end_date", value="{{ end_d }}">
+
+    <button type="submit">Apply Filter</button>
+
+    
+    {% csrf_token %}
+    <h2>Application's</h2>
+    {% comment %} <form method="GET"> {% endcomment %}
+        {% comment %} <select name="selected_application" onchange="this.form.submit()"> #onchange="document.getElementById('filterForm').submit()" {% endcomment %}
+          <select name="selected_application" onchange="document.getElementById('filterForm').submit()">
+          <option value="">Select an Application</option>
+            {% for app_name in application_names %}
+                <option value="{{ app_name.appd_application_name }}" {% if app_name.appd_application_name == selected_application %}selected{% endif %}>{{ app_name.appd_application_name }}</option>
+            {% endfor %}
+        </select>
+
+        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">
+          <i class="fa fa-check"></i>
+        </button>
+    
+
+
+  </form>
+  <div class="dropdown-select-application" style="width: 100%; margin: 0 auto;" > 
+    
+  </div>
+
+  <!-- Type graph -->
+
+  <div class="chart-container-type" style="width: 100%; margin: 0 auto;">
+    <h3> Type Info </h3>
+    <canvas id="barChart"></canvas>
+    <br>
+    <br>
+  </div>
+
+ 
+  <div class="chart-container-Severity" style="width: 100%; margin: 0 auto;">
+    <h2> Severity Data </h2>
+    <canvas id="barChart_severity"></canvas>
+
+  </div>
+
+  
+      
+  
+</div>
+  
+
+
+
+<!-- Java Scripts refresh for every 300sec  -->
+<script>
+  function refreshData() {
+      // Reload the current page
+      location.reload();
+  }
+  
+  // Refresh the data every 5 minutes (300000 milliseconds)
+  setInterval(refreshData, 300000);
+</script>
+<!-- inbuilt java scripts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- application level java script-->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- type level java script-->
+
+<script>
+  // Create a bar chart
+  var ctx = document.getElementById('barChart').getContext('2d');
+  var myBarChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+          labels:  [{% for product in type_data %} '{{ product.type }}', {% endfor %}],
+          datasets: [{
+              label: 'Count',
+              data: [{% for product in type_data %} '{{ product.type_count }}', {% endfor %}],
+              backgroundColor: 'rgb(64, 181, 173)', // Bar fill color
+              borderColor: 'rgb(64, 181, 173))', // Border color
+              borderWidth: 2,
+              fill: true
+          }]
+      },
+      options: {
+          scales: {
+            x: {
+              display: true, // Hide x-axis labels
+            },
+              y: {
+                  beginAtZero: true
+              }
+          }
+      }
+  });
+</script>
+
+<!-- severity_data -->
+
+<script>
+  // Get the data from the context
+  {% comment %} var labels = {% for item in grouped_data %} {{ item.type }} {% if not forloop.last %}, {% endif %}{% endfor %};
+  var data = {% for item in grouped_data %} {{ item.group_count }} {% if not forloop.last %}, {% endif %}{% endfor %}; {% endcomment %}
+
+  // Create a bar chart
+  var ctx = document.getElementById('barChart_severity').getContext('2d');
+  var myBarChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+          labels:  [{% for product in severity_data %} '{{ product.severity }}', {% endfor %}],
+          datasets: [{
+              label: 'Count',
+              data: [{% for product in severity_data %} '{{ product.severity_count }}', {% endfor %}],
+              backgroundColor: 'rgb(0, 0, 120)', // Adjust the bar color as needed
+              borderColor: 'rgb(0, 0, 120)', // Adjust the border color as needed
+              borderWidth: 1
+          }]
+      },
+      options: {
+          scales: {
+              y: {
+                  beginAtZero: true
+              }
+          }
+      }
+  });
+</script>
+
+
+<!-- footer -->
+<footer>
+  <div class="container">
+      <p>&copy; 2023 Cisco</p>
+      <ul>
+          <li><a href="{% url 'hourdate' %}">Home</a></li>
+          <li><a href="#">Contact</a></li>
+      </ul>
+  </div>
+</footer>
+          
+</body>
+</html>
+
+
+
+<!-- 
+
+      <h3> Test Data Points </h3>
+    <div id="chartContainer" style="width: 100%; height: 360px;"></div>
+    <script src="{% static 'canvasjs.min.js' %}"></script>
+    <script>
+    window.onload = function () {
+        var chart = new CanvasJS.Chart("chartContainer", {
+            animationEnabled: true, // change to false
+            title:{
+                text: "Python Column Chart"
+            },
+            data: [{
+                type: "{{ chart_type }}",  // Use the chart type from the context
+                dataPoints: {{ data_points | safe }}
+            }]
+        });
+        chart.render();
+    }
+    </script>
+-->
